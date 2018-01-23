@@ -1,0 +1,6 @@
+From here: https://nikolak.com/pyqt-qt-designer-getting-started/
+
+Create .py from .ui file: pyuic4 design.ui -o design.py
+
+Create exe with pyinstaller main.py --onefile --noconsole
+
