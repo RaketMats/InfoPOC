@@ -38,11 +38,13 @@ class ExampleApp(QtGui.QMainWindow, design.Ui_MainWindow):
 
     def PopulateDefaultMetainformation(self):
         print 'PopulateDefaultMetainformation called'
+        print "self.meta:", self.meta
+        
         #self.meta = metainfo.Process('root') # Add the root process manually
         self.XAddProcessToParentByName(None, 'root') # Add the root process
         self.XAddProcessToParentByName('root', '1')        
         self.XAddProcessToParentByName('root', '2')        
-        self.XAddProcessToParentByName('1', '11')        
+        self.XAddProcessToParentByName('1', '11')          
         self.XAddProcessToParentByName('1', '12')        
         self.XAddProcessToParentByName('2', '21')        
         self.XAddProcessToParentByName('2', '22')        
@@ -267,11 +269,11 @@ class ExampleApp(QtGui.QMainWindow, design.Ui_MainWindow):
     '''
 
     def PopulateTreeView(self, pn, node):
-        
         y = pn.GetSubProcesses()
         for x in y:
+            print 'PopulateTreeView found process:', x.Info()
             parent = QtGui.QTreeWidgetItem(node)
-            parent.setText(0, x.Info())
+            parent.setText(0, x.GetName())
             parent.setData(0, 1, x.GetId())
             z = x.GetSubProcesses()
             if len(z) != 0:
@@ -320,9 +322,9 @@ class ExampleApp(QtGui.QMainWindow, design.Ui_MainWindow):
 
         # Build the mockup metainformation
         self.PopulateDefaultMetainformation()
-        
+
         # Populate the treeview
-        # self.PopulateTreeView(self.meta[0], self.treeProcesses)
+        self.PopulateTreeView(self.meta, self.treeProcesses)
             
 
         # Initialise the QWidget Table, from here https://pythonspot.com/en/qt4-table/
@@ -451,11 +453,13 @@ class ExampleApp(QtGui.QMainWindow, design.Ui_MainWindow):
         #fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file', 'c:\\',"Image files (*.jpg *.gif)")
         print 'Loading from file', filenames[0]
         pickle_file = file(filenames[0])
-        self.meta = [] # Clear the metainfo before loading from file
-        self.meta.append(pickle.load(pickle_file))
+        #self.meta = [] # Clear the metainfo before loading from file
+        self.meta = None # Clear the metainfo before loading from file
+        #self.meta.append(pickle.load(pickle_file))
+        self.meta = pickle.load(pickle_file)
         self.treeProcesses.clear()
         #self.PopulateTreeview(self.meta[0].GetSubProcesses(), self.treeProcesses)
-        self.PopulateTreeView(self.meta[0], self.treeProcesses)
+        self.PopulateTreeView(self.meta, self.treeProcesses)
         
         #debugText = 'Processes'
         #for p in self.processes:
@@ -477,7 +481,6 @@ class ExampleApp(QtGui.QMainWindow, design.Ui_MainWindow):
         # Adding the root process is a special case
         if name == 'root':
             self.meta = metainfo.Process('root')
-            print 'root process added'
             return
             
         found = self.XFindProcessByName(self.meta, parent)
@@ -856,7 +859,7 @@ class ExampleApp(QtGui.QMainWindow, design.Ui_MainWindow):
             self.AddProcess(self.meta, self.foundProcess.GetId(), newProcessName)
             self.treeProcesses.clear()
             #self.PopulateTreeview(self.meta[0].GetSubProcesses(), self.treeProcesses)
-            self.PopulateTreeView(self.meta[0], self.treeProcesses)
+            self.PopulateTreeView(self.meta, self.treeProcesses)
             print 'Process added:', newProcessName
 
         else:
@@ -874,7 +877,7 @@ class ExampleApp(QtGui.QMainWindow, design.Ui_MainWindow):
             self.AddChildProcess(self.meta, self.foundProcess.GetId(), newProcessName)
             self.treeProcesses.clear()
             #self.PopulateTreeview(self.meta[0].GetSubProcesses(), self.treeProcesses)
-            self.PopulateTreeView(self.meta[0], self.treeProcesses)
+            self.PopulateTreeView(self.meta, self.treeProcesses)
             print 'Child process added:', newProcessName
 
         else:
@@ -887,7 +890,7 @@ class ExampleApp(QtGui.QMainWindow, design.Ui_MainWindow):
             self.DeleteProcess(self.meta, self.foundProcess.GetId()) # Note, when deleting it is the clicked process parent that must be the start. Thus, start with meta[0] i.e. 'root' and go through it's subprocesses to find the clicked one
             self.treeProcesses.clear()
             #self.PopulateTreeview(self.meta[0].GetSubProcesses(), self.treeProcesses)
-            self.PopulateTreeView(self.meta[0], self.treeProcesses)
+            self.PopulateTreeView(self.meta, self.treeProcesses)
             print 'Process deleted'
         else:
             print 'Process not deleted'
@@ -902,7 +905,7 @@ class ExampleApp(QtGui.QMainWindow, design.Ui_MainWindow):
             self.RenameProcess(self.meta[0].GetSubProcesses(), self.foundProcess.GetId(), newProcessName)
             self.treeProcesses.clear()
             #self.PopulateTreeview(self.meta[0].GetSubProcesses(), self.treeProcesses)
-            self.PopulateTreeView(self.meta[0], self.treeProcesses)
+            self.PopulateTreeView(self.meta, self.treeProcesses)
 
         else:
             print 'No change of name done'
